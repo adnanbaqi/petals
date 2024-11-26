@@ -153,20 +153,13 @@ async def iterate_rpc_inference(
     points: int,
     quant_type: QuantType,
     args_structure: Any = None,
-) -> AsyncIterator[Tuple[Sequence[runtime_pb2.Tensor], bool, Dict]]:
+) -> AsyncIterator[Tuple[Sequence[runtime_pb2.Tensor], bool]]:
     assert len(cache_handles) == len(requested_backends)
 
     prefix_length = 0
     point_per_piece = points / max_length if max_length > 0 else 0.0
 
     async for request, step_metadata in input_iterator:
-        if "start_from_position" in step_metadata:
-            start_from_position = step_metadata["start_from_position"]
-            assert (
-                prefix_length >= start_from_position,
-            ), f"prefix_length={prefix_length}, start_from_position={start_from_position}"
-            prefix_length = start_from_position
-
         flat_tensors = tuple(deserialize_torch_tensor(tensor) for tensor in request.tensors)
         if args_structure is not None:
             # TODO: kwargs currently is unused, it can be used later for peft-like adaptation
@@ -231,7 +224,7 @@ async def iterate_rpc_inference(
             for result, proto in zip((hidden_states,), nested_flatten(requested_backends[-1].outputs_schema))
         ]
         can_push = not has_prompts
-        yield output_tensors, can_push, step_metadata
+        yield output_tensors, can_push
 
         # prepare for next step
         prefix_length += length_increment
