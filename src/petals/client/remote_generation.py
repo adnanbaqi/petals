@@ -1,13 +1,11 @@
 import contextlib
 import dataclasses
 from contextvars import ContextVar
-from typing import Any, ContextManager, Dict, List, Optional, Tuple
+from typing import ContextManager, List, Optional
 
 import torch
 import transformers
 from hivemind.utils.logging import get_logger
-from torch import Tensor
-from transformers.cache_utils import Cache, DynamicCache
 from transformers.generation.utils import ModelOutput
 
 from petals.client.inference_session import InferenceSession
@@ -17,28 +15,14 @@ from petals.utils.misc import DUMMY, docstring_from
 logger = get_logger(__name__)
 
 
-class RemotePastKeyValues(Cache):
-    """only keeps the number of seen tokens. pretends to be a legit cache"""
+@dataclasses.dataclass(frozen=True)
+class RemotePastKeyValues:
+    """A mock class representing the fact that `past_key_values` do exist but are stored on remote servers."""
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._seen_tokens = 0
-        self.hypo_ids: Optional[torch.LongTensor] = None
+    hypo_ids: Optional[torch.LongTensor] = None
 
     def __getitem__(self, _index: int) -> List[torch.Tensor]:
         return [DUMMY]  # For compatibility with BloomForCausalLM.prepare_inputs_for_generation()
-
-    def get_seq_length(self, layer_idx: Optional[int] = 0) -> int:
-        return self._seen_tokens
-
-    def get_max_length(self) -> Optional[int]:
-        return None
-
-    def update_seen(self, new_seen: int) -> None:
-        self._seen_tokens += new_seen
-
-    def reorder_cache(self, beam_idx):
-        raise NotImplementedError("Beam search reordering is not implemented yet")
 
 
 _skipped_tokens = ContextVar("skipped_tokens", default=0)
@@ -128,11 +112,6 @@ class RemoteGenerationMixin(_SkipTokensMixin):
                 # Don't actually run all previous tokens through the transformer,
                 # but keep them for transformers.GenerationMixin (e.g., to compute repetition_penalty)
                 _skipped_tokens.set(max(0, n_prev_tokens - 1))
-
-            if self._supports_cache_class and "past_key_values" not in kwargs:
-                past_key_values = RemotePastKeyValues()
-                past_key_values.update_seen(session.position)
-                kwargs["past_key_values"] = past_key_values
 
             result = super().generate(inputs, *args, **kwargs)
 

@@ -19,12 +19,11 @@ from accelerate.utils import set_module_tensor_to_device
 from hivemind.utils.logging import get_logger
 from huggingface_hub import get_hf_file_metadata, hf_hub_url
 from huggingface_hub.utils import EntryNotFoundError
-from transformers import PretrainedConfig, PreTrainedModel
+from transformers import PretrainedConfig
 from transformers.utils import get_file_from_repo
 
 from petals.constants import DTYPE_MAP
-from petals.models.mixtral import WrappedMixtralBlock
-from petals.server.block_utils import get_model_block, resolve_block_dtype
+from petals.server.block_utils import resolve_block_dtype
 from petals.utils.auto_config import AutoDistributedConfig
 from petals.utils.disk_cache import DEFAULT_CACHE_DIR, allow_cache_reads, allow_cache_writes, free_disk_space_for
 from petals.utils.hf_auth import always_needs_auth
@@ -52,7 +51,7 @@ def load_pretrained_block(
     torch_dtype = resolve_block_dtype(config, torch_dtype)
 
     with init_empty_weights():
-        block = get_model_block(config, layer_idx=block_index)
+        block = config.block_class(config)
 
     block_prefix = f"{config.block_prefix}.{block_index}."
     state_dict = _load_state_dict_from_repo(
@@ -64,6 +63,10 @@ def load_pretrained_block(
         max_disk_space=max_disk_space,
     )
 
+    # dummy load, check that keys match
+    report = block.load_state_dict(state_dict, strict=False)
+    assert not report.missing_keys, f"Some block weights are missing: {report.missing_keys}"
+
     for param_name, _ in block.named_parameters():
         assert param_name in state_dict, f"{param_name} not in state dict"
         param = state_dict[param_name]
@@ -72,6 +75,7 @@ def load_pretrained_block(
         set_module_tensor_to_device(block, param_name, "cpu", value=param, dtype=param.dtype)
 
     logger.info(f"Loaded {model_name} block {block_index}")
+    logger.debug(f"Details: {report}")
     return block
 
 
