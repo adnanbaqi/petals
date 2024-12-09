@@ -44,11 +44,10 @@ def validate_reachability(peer_id, wait_time: float = 7 * 60, retry_delay: float
         f"Server has not become reachable from the Internet:\n\n"
         f"{response['message']}\n\n"
         f"You need to fix your port forwarding and/or firewall settings. How to do that:\n\n"
-        f"    1. Choose a specific port for the Petals server, for example, 31337.\n"
+        f"    1. Choose a specific port for the Petals server, for example, 31415.\n"
         f"    2. Ensure that this port is accessible from the Internet and not blocked by your firewall.\n"
         f"    3. Add these arguments to explicitly announce your IP address and port to other peers:\n"
-        f"        python -m petals.cli.run_server ... --public_ip {response['your_ip']} --port 31337\n"
-        f"    4. If it does not help, ask for help in our Discord: https://discord.gg/Wuk8BnrEPH\n"
+        f"       python -m petals.cli.run_server ... --public_ip {response['your_ip']} --port 31415\n"
     )
 
 
