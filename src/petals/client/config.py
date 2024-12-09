@@ -14,7 +14,7 @@ DEFAULT_MAX_RETRIES = int(_max_retries) if isinstance(_max_retries, str) else No
 class ClientConfig:
     initial_peers: Sequence[str] = tuple(PUBLIC_INITIAL_PEERS)  # a list of initial peers for hivemind DHT
     dht_prefix: Optional[str] = None  # a prefix for all dht keys that correspond to this model (default: model name)
-    daemon_startup_timeout: int = 60  # timeout for the libp2p daemon connecting to initial peers
+    daemon_startup_timeout: int = 100  # timeout for the libp2p daemon connecting to initial peers
 
     show_route: Union[str, bool] = "inference"  # show chosen route through servers. one of [False, "inference", True]
     allowed_servers: Optional[Sequence[Union[PeerID, str]]] = None  # if defined, send requests only to these servers
