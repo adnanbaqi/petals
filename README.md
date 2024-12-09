@@ -14,7 +14,7 @@ Generate text with distributed **Llama 2** (70B), **Falcon** (40B+), **BLOOM** (
 from transformers import AutoTokenizer
 from petals import AutoDistributedModelForCausalLM
 
-# Choose any model available at https://health.petals.dev
+# Choose any model available at https://health.golab.ai
 model_name = "petals-team/StableBeluga2"  # This one is fine-tuned Llama 2 (70B)
 
 # Connect to a distributed network hosting model layers
@@ -39,7 +39,7 @@ print(tokenizer.decode(outputs[0]))  # A cat sat on a mat...
 
 ## Connect your GPU and increase Petals capacity
 
-Petals is a community-run system &mdash; we rely on people sharing their GPUs. You can check out [available models](https://health.petals.dev) and help serving one of them! As an example, here is how to host a part of [Stable Beluga 2](https://huggingface.co/stabilityai/StableBeluga2) on your GPU:
+Petals is a community-run system &mdash; we rely on people sharing their GPUs. You can check out [available models](https://health.golab.ai) and help serving one of them! As an example, here is how to host a part of [Stable Beluga 2](https://huggingface.co/stabilityai/StableBeluga2) on your GPU:
 
 🐧 **Linux + Anaconda.** Run these commands for NVIDIA GPUs (or follow [this](https://github.com/bigscience-workshop/petals/wiki/Running-on-AMD-GPU) for AMD):
 
@@ -77,11 +77,11 @@ python3 -m petals.cli.run_server petals-team/StableBeluga2
 
 🔒 **Security.** Hosting a server does not allow others to run custom code on your computer. Learn more [here](https://github.com/bigscience-workshop/petals/wiki/Security,-privacy,-and-AI-safety).
 
-🏆 **Thank you!** Once you load and host 10+ blocks, we can show your name or link on the [swarm monitor](https://health.petals.dev) as a way to say thanks. You can specify them with `--public_name YOUR_NAME`.
+🏆 **Thank you!** Once you load and host 10+ blocks, we can show your name or link on the [swarm monitor](https://health.golab.ai) as a way to say thanks. You can specify them with `--public_name YOUR_NAME`.
 
 ## How does it work?
 
-- You load a small part of the model, then join a [network](https://health.petals.dev) of people serving the other parts. Single‑batch inference runs at up to **6 tokens/sec** for **Llama 2** (70B) and up to **4 tokens/sec** for **Falcon** (180B) — enough for [chatbots](https://chat.petals.dev) and interactive apps.
+- You load a small part of the model, then join a [network](https://health.golab.ai) of people serving the other parts. Single‑batch inference runs at up to **6 tokens/sec** for **Llama 2** (70B) and up to **4 tokens/sec** for **Falcon** (180B) — enough for [chatbots](https://chat.petals.dev) and interactive apps.
 - You can employ any fine-tuning and sampling methods, execute custom paths through the model, or see its hidden states. You get the comforts of an API with the flexibility of **PyTorch** and **🤗 Transformers**.
 
 <p align="center">
@@ -105,7 +105,7 @@ Basic tutorials:
 Useful tools:
 
 - [Chatbot web app](https://chat.petals.dev) (connects to Petals via an HTTP/WebSocket endpoint): [source code](https://github.com/petals-infra/chat.petals.dev)
-- [Monitor](https://health.petals.dev) for the public swarm: [source code](https://github.com/petals-infra/health.petals.dev)
+- [Monitor](https://health.golab.ai) for the public swarm: [source code](https://github.com/petals-infra/health.petals.dev)
 
 Advanced guides:
 
